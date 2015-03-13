@@ -1,6 +1,8 @@
 package com.ithinkbest.tcnr18;
 
 import android.app.Activity;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -8,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,10 +22,20 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import org.json.JSONException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
+    public final String LOG_TAG = "FINAL";
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -48,8 +61,107 @@ public class MainActivity extends ActionBarActivity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
+    class AsyncTaskFetchCloudData extends AsyncTask<Void, Void, Void> {
+        /** The system calls this to perform work in a worker thread and
+         * delivers it the parameters given to AsyncTask.execute() */
+
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            fetchCloudData();
+            return null;
+        }
+
+        /** The system calls this to perform work in the UI thread and delivers
+         * the result from doInBackground() */
+//        protected void onPostExecute(Bitmap result) {
+//            mImageView.setImageBitmap(result);
+//        }
+    }
+    private void fetchCloudData(){
+        Log.d(LOG_TAG, "Starting sync");
+      //  String locationQuery = Utility.getPreferredLocation(getContext());
+
+        // These two need to be declared outside the try/catch
+        // so that they can be closed in the finally block.
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+
+        // Will contain the raw JSON response as a string.
+        String forecastJsonStr = null;
+        try {
+            // Construct the URL for the OpenWeatherMap query
+            // Possible parameters are avaiable at OWM's forecast API page, at
+            // http://openweathermap.org/API#forecast
+            final String BASE_URL =
+                    "http://opensource-forever.com/final/list.php";
+
+
+            URL url = new URL(BASE_URL);
+
+            // Create the request to OpenWeatherMap, and open the connection
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            // Read the input stream into a String
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null) {
+                // Nothing to do.
+                return;
+            }
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                // But it does make debugging a *lot* easier if you print out the completed
+                // buffer for debugging.
+                buffer.append(line + "\n");
+            }
+
+            if (buffer.length() == 0) {
+                // Stream was empty.  No point in parsing.
+                return;
+            }
+            forecastJsonStr = buffer.toString();
+        //    getWeatherDataFromJson(forecastJsonStr, locationQuery);
+            Log.d(LOG_TAG, forecastJsonStr);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Error ", e);
+            // If the code didn't successfully get the weather data, there's no point in attempting
+            // to parse it.
+//        } catch (JSONException e) {
+//            Log.e(LOG_TAG, e.getMessage(), e);
+//            e.printStackTrace();
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (final IOException e) {
+                    Log.e(LOG_TAG, "Error closing stream", e);
+                }
+            }
+        }
+        return;
+    }
+
+
     @Override
     public void onNavigationDrawerItemSelected(int position) {
+        //
+        Log.d(LOG_TAG,"position is "+position);
+        if (position==2){
+            new AsyncTaskFetchCloudData().execute();
+
+        }
+
+
+
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
