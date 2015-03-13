@@ -2,6 +2,7 @@ package com.ithinkbest.tcnr18;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity
@@ -71,7 +73,30 @@ public class MainActivity extends ActionBarActivity
             return null;
         }
 
-        /** The system calls this to perform work in the UI thread and delivers
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+//            getContentResolver().delete(MembersProvider.CONTENT_URL,"",null);
+            String[] projection={MembersProvider.COLUMN_NICKNAME};
+            Cursor cursor=getContentResolver().query(MembersProvider.CONTENT_URL, projection, "", null, "NICKNAME");
+            String members="";
+            String nickname="";
+            ArrayList<String> memberList=new ArrayList<>();
+            if (cursor.moveToFirst()){
+                 nickname=cursor.getString(0);
+                memberList.add(nickname);
+                while (cursor.moveToNext()){
+                    nickname=cursor.getString(0);
+                    memberList.add(nickname);
+                }
+            }
+            for (String str:memberList){
+                Log.d(LOG_TAG,"onPostExecute members = "+ str);
+
+            }
+        }
+/** The system calls this to perform work in the UI thread and delivers
          * the result from doInBackground() */
 //        protected void onPostExecute(Bitmap result) {
 //            mImageView.setImageBitmap(result);
