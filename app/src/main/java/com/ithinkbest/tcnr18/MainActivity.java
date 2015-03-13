@@ -36,7 +36,7 @@ import java.util.ArrayList;
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
-    public final String LOG_TAG = "FINAL";
+    public final static String LOG_TAG = "FINAL";
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -77,24 +77,7 @@ public class MainActivity extends ActionBarActivity
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-//            getContentResolver().delete(MembersProvider.CONTENT_URL,"",null);
-            String[] projection={MembersProvider.COLUMN_NICKNAME};
-            Cursor cursor=getContentResolver().query(MembersProvider.CONTENT_URL, projection, "", null, "NICKNAME");
-            String members="";
-            String nickname="";
-            ArrayList<String> memberList=new ArrayList<>();
-            if (cursor.moveToFirst()){
-                 nickname=cursor.getString(0);
-                memberList.add(nickname);
-                while (cursor.moveToNext()){
-                    nickname=cursor.getString(0);
-                    memberList.add(nickname);
-                }
-            }
-            for (String str:memberList){
-                Log.d(LOG_TAG,"onPostExecute members = "+ str);
-
-            }
+//
         }
 /** The system calls this to perform work in the UI thread and delivers
          * the result from doInBackground() */
@@ -307,6 +290,8 @@ public class MainActivity extends ActionBarActivity
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
+        Spinner spinner;
+
         /**
          * The fragment argument representing the section number for this
          * fragment.
@@ -328,20 +313,59 @@ public class MainActivity extends ActionBarActivity
         public PlaceholderFragment() {
         }
 
+        public void updateSpinner(String[] memberList){
+
+                 //  String[] memberList={"AAA","BBB","CCC"};
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),  android.R.layout.simple_spinner_item, memberList);
+
+// Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+// Apply the adapter to the spinner
+            spinner.setAdapter(adapter);
+
+
+        }
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            //savedInstanceState.get
 
       //
-            Spinner spinner = (Spinner) rootView.findViewById(R.id.spinner);
+             spinner = (Spinner) rootView.findViewById(R.id.spinner);
 // Create an ArrayAdapter using the string array and a default spinner layout
 //            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
 //                    R.array.planets_array, android.R.layout.simple_spinner_item);
 
 //            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
 //                    R.array.planets_array, android.R.layout.simple_spinner_item);
-            String[] memberList={"AAA","BBB","CCC"};
+
+           // getContentResolver().delete(MembersProvider.CONTENT_URL,"",null);
+            String[] projection={MembersProvider.COLUMN_NICKNAME};
+            Cursor cursor=getActivity().getContentResolver().query(MembersProvider.CONTENT_URL, projection, "", null, "NICKNAME");
+            String members="";
+            String nickname="";
+            ArrayList<String> memberList=new ArrayList<>();
+            if (cursor.moveToFirst()){
+                nickname=cursor.getString(0);
+                memberList.add(nickname);
+                while (cursor.moveToNext()){
+                    nickname=cursor.getString(0);
+                    memberList.add(nickname);
+                }
+            }
+            for (String str:memberList){
+                Log.d(LOG_TAG,"onPostExecute members = "+ str);
+
+            }
+
+
+
+
+
+           // String[] memberList={"AAA","BBB","CCC"};
+
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),  android.R.layout.simple_spinner_item, memberList);
 
 // Specify the layout to use when the list of choices appears
