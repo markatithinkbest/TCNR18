@@ -1,28 +1,27 @@
 package com.ithinkbest.tcnr18;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.content.Context;
-import android.os.Build;
-import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -126,6 +125,7 @@ public class MainActivity extends ActionBarActivity
                 return;
             }
             forecastJsonStr = buffer.toString();
+            updateSQLite(buffer.toString());
         //    getWeatherDataFromJson(forecastJsonStr, locationQuery);
             Log.d(LOG_TAG, forecastJsonStr);
         } catch (IOException e) {
@@ -150,6 +150,50 @@ public class MainActivity extends ActionBarActivity
         return;
     }
 
+    private void updateSQLite(String str){
+        JSONArray jsonArray=null;
+        try {
+            jsonArray=new JSONArray(str);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        for (int i=0;i<jsonArray.length();i++){
+            try {
+                JSONObject jsonObject=jsonArray.getJSONObject(i);
+
+                // *** NEED TO PAY ATTENTION TO ID
+                int  memberid=jsonObject.getInt("ID");
+                String username=jsonObject.getString(MembersProvider.COLUMN_USERNAME);
+
+                Log.d(LOG_TAG,"memberid,username => "+memberid+","+username);
+                ContentValues values = new ContentValues();
+
+                values.put(MembersProvider.COLUMN_MEMBERID, memberid);
+                values.put(MembersProvider.COLUMN_USERNAME, username);
+
+
+                // Provides access to other applications Content Providers
+                Uri uri = getContentResolver().insert(MembersProvider.CONTENT_URL, values);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+
+        // Stores a key value pair
+//        ContentValues values = new ContentValues();
+//        values.put(MembersProvider.COLUMN_USERNAME, "aaa");
+//
+//        // Provides access to other applications Content Providers
+//        Uri uri = getContentResolver().insert(MembersProvider.CONTENT_URL, values);
+
+//        Toast.makeText(getBaseContext(), "New Contact Added", Toast.LENGTH_LONG)
+//                .show();
+    }
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
@@ -158,7 +202,9 @@ public class MainActivity extends ActionBarActivity
         if (position==2){
             new AsyncTaskFetchCloudData().execute();
 
+
         }
+
 
 
 

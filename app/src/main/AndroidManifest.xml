@@ -19,6 +19,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
+        <!-- The Content Provider is declared -->
+        <provider
+            android:name=".MembersProvider"
+            android:authorities="com.ithinkbest.tcnr18.MembersProvider"
+            android:exported="true"
+            android:multiprocess="true" >
+        </provider>
+
+
     </application>
 
 </manifest>
