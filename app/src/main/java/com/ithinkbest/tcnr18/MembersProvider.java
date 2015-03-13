@@ -25,8 +25,13 @@ public class MembersProvider extends ContentProvider {
     static final Uri CONTENT_URL = Uri.parse(URL);
 
     static final String COLUMN_ID = "_ID";
-    static final String COLUMN_MEMBERID = "MEMBERID";
+    static final String COLUMN_MEMBERID = "MEMBER_ID";
     static final String COLUMN_USERNAME = "USERNAME";
+    static final String COLUMN_NICKNAME = "NICKNAME";
+    static final String COLUMN_EMAIL = "EMAIL";
+    static final String COLUMN_GRP = "GRP";
+
+
 
     static final int uriCode = 1;
 
@@ -43,12 +48,15 @@ public class MembersProvider extends ContentProvider {
     private SQLiteDatabase sqlDB;
     static final String DATABASE_NAME = "myContacts";
     static final String TABLE_NAME = "MEMBERS";
-    static final int DATABASE_VERSION = 4; // need to increase when change table structure
+    static final int DATABASE_VERSION = 6; // need to increase when change table structure
     static final String CREATE_DB_TABLE = " CREATE TABLE " + TABLE_NAME
             + " ("
             + COLUMN_ID +" INTEGER PRIMARY KEY AUTOINCREMENT, "
             + COLUMN_MEMBERID +" INTEGER, "
-            + COLUMN_USERNAME +" TEXT NOT NULL"
+            + COLUMN_USERNAME +" TEXT NOT NULL,"
+            + COLUMN_NICKNAME +" TEXT NOT NULL,"
+            + COLUMN_EMAIL +" TEXT NOT NULL,"
+            + COLUMN_GRP +" TEXT NOT NULL"
             +");";
 
     @Override
@@ -111,6 +119,9 @@ public class MembersProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
     }
+
+
+
 
     // Used to insert a new row into the provider
     // Receives the URI (Uniform Resource Identifier) for the Content Provider and a set of values

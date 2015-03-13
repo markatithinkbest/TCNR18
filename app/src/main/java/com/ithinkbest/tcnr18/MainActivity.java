@@ -158,6 +158,11 @@ public class MainActivity extends ActionBarActivity
             e.printStackTrace();
         }
 
+        if (jsonArray.length()<1)return;
+        int cnt=getContentResolver().delete(MembersProvider.CONTENT_URL,"",null);
+        Log.d(LOG_TAG,"delete cnt= "+cnt);
+
+
         for (int i=0;i<jsonArray.length();i++){
             try {
                 JSONObject jsonObject=jsonArray.getJSONObject(i);
@@ -165,12 +170,20 @@ public class MainActivity extends ActionBarActivity
                 // *** NEED TO PAY ATTENTION TO ID
                 int  memberid=jsonObject.getInt("ID");
                 String username=jsonObject.getString(MembersProvider.COLUMN_USERNAME);
+                String nickname=jsonObject.getString(MembersProvider.COLUMN_NICKNAME);
+                String email=jsonObject.getString(MembersProvider.COLUMN_EMAIL);
+                String grp=jsonObject.getString(MembersProvider.COLUMN_GRP);
+
+
 
                 Log.d(LOG_TAG,"memberid,username => "+memberid+","+username);
                 ContentValues values = new ContentValues();
 
                 values.put(MembersProvider.COLUMN_MEMBERID, memberid);
                 values.put(MembersProvider.COLUMN_USERNAME, username);
+                values.put(MembersProvider.COLUMN_NICKNAME, nickname);
+                values.put(MembersProvider.COLUMN_EMAIL, email);
+                values.put(MembersProvider.COLUMN_GRP, grp);
 
 
                 // Provides access to other applications Content Providers
